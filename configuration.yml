@@ -13,19 +13,19 @@ mqtt:
     - name: "wifi24_gpon_in_bytes"
       state_topic: "zte/gpon/f670l/local_net_status"
       unit_of_measurement: "bytes"
-      value_template: "{{ value_json.status_lan_info['DEV.WIFI.AP1'].InBytes | int }}"
+      value_template: "{{ value_json.wlan_client_configdrv_id['DEV.WIFI.AP1'].TotalBytesReceived | int }}"
       
     - name: "wifi24_gpon_out_bytes"
       state_topic: "zte/gpon/f670l/local_net_status"
       unit_of_measurement: "bytes"
-      value_template: "{{ value_json.status_lan_info['DEV.WIFI.AP1'].OutBytes | int }}"
+      value_template: "{{ value_json.wlan_client_configdrv_id['DEV.WIFI.AP1'].TotalBytesSent | int }}"
       
     - name: "wifi50_gpon_in_bytes"
       state_topic: "zte/gpon/f670l/local_net_status"
       unit_of_measurement: "bytes"
-      value_template: "{{ value_json.status_lan_info['DEV.WIFI.AP5'].InBytes | int }}"
+      value_template: "{{ value_json.wlan_client_configdrv_id['DEV.WIFI.AP5'].TotalBytesReceived | int }}"
       
     - name: "wifi50_gpon_out_bytes"
       state_topic: "zte/gpon/f670l/local_net_status"
       unit_of_measurement: "bytes"
-      value_template: "{{ value_json.status_lan_info['DEV.WIFI.AP5'].OutBytes | int }}"
+      value_template: "{{ value_json.wlan_client_configdrv_id['DEV.WIFI.AP5'].TotalBytesSent | int }}"
