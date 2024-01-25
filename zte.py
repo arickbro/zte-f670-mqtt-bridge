@@ -1,11 +1,11 @@
 import requests
 import hashlib
-import random
 import re
 import json
 import logging
 import xmltodict
 from pathlib import Path
+from re import sub
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
@@ -63,7 +63,7 @@ class zte_f670l:
         main_object = xmltodict.parse(html)
         output['wlan_wlanstatus'] = self.translate(main_object,'OBJ_WLANAP_ID', 0) 
         output['wlan_client_configdrv_id'] = self.translate(main_object,'OBJ_WLANCONFIGDRV_ID', 0) 
-        
+
         html = self.session.get(self.ZTE_BASE_URL+'?_type=menuData&_tag=wlan_client_stat_lua.lua&TypeUplink=2&pageType=1').text
         main_object = xmltodict.parse(html)
         output['wlan_client_stat'] = self.translate(main_object,'OBJ_WLAN_AD_ID', 0) 
@@ -149,3 +149,39 @@ class zte_f670l:
             return False
         else:
             return True
+    def snake_case(self,s):
+        # Replace hyphens with spaces, then apply regular expression substitutions for title case conversion
+        # and add an underscore between words, finally convert the result to lowercase
+        return '_'.join(
+            sub('([A-Z][a-z]+)', r' \1',
+            sub('([A-Z]+)', r' \1',
+            s.replace('-', ' '))).split()).lower()
+    
+    def to_node_exporter(self,filename):
+        f = open(filename, "w")
+        counter = ['total_bytes_sent','total_packets_sent','total_packets_received','total_bytes_received'
+                'in_discard','in_error','out_multicas','in_bytes','out_pkts','out_discard',
+                'in_unicast','out_unicast','in_multicast','out_error','out_bytes','in_pkts']
+        for main_stat in object:
+            for device in object[main_stat]:
+                for stat in object[main_stat][device]:
+                    clean_stat = self.snake_case(stat)
+                    value = object[main_stat][device][stat]
+                    if clean_stat in counter:
+                        type ='#TYPE  counter'
+                    else:
+                        type ='#TYPE  gauge'
+                    try:
+                        int(value)
+                    except ValueError:
+                        continue
+            
+                    txt  = "{4}\n{0}_{2} {{device={1}}} {3}\n".format(
+                        main_stat,
+                        device.lower(),
+                        clean_stat,
+                        value,
+                        type
+                        )
+                    f.write(txt)
+        f.close()
