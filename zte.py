@@ -14,10 +14,10 @@ logging.basicConfig(
 )
 
 class zte_f670l:
-    def __init__(self):
-        self.ZTE_USERNAME = 'admin'
-        self.ZTE_PASSWORD = 'Telkomdso123'
-        self.ZTE_BASE_URL ='http://192.168.1.1/'
+    def __init__(self,  url , username, password, cookie_file):
+        self.ZTE_USERNAME = username
+        self.ZTE_PASSWORD = password
+        self.ZTE_BASE_URL =url
         self.ZTE_HEADERS = {
         'Accept': 'application/json, text/javascript, */*; q=0.01',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -25,7 +25,7 @@ class zte_f670l:
         'Origin': self.ZTE_BASE_URL,
         'Referer': self.ZTE_BASE_URL
         }
-        self.COOKIE_FILE = 'cookies.json'
+        self.COOKIE_FILE = cookie_file
 
         self.session = requests.session()
         logging.info("load cookie from : {0}".format(self.COOKIE_FILE) )
@@ -157,7 +157,7 @@ class zte_f670l:
             sub('([A-Z]+)', r' \1',
             s.replace('-', ' '))).split()).lower()
     
-    def to_node_exporter(self,filename):
+    def to_node_exporter(self,object, filename):
         f = open(filename, "w")
         counter = ['total_bytes_sent','total_packets_sent','total_packets_received','total_bytes_received'
                 'in_discard','in_error','out_multicas','in_bytes','out_pkts','out_discard',
