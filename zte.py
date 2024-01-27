@@ -107,7 +107,7 @@ class zte_f670l:
                 Instance = [object['Instance']]
             for i in Instance:
                 object_key = i['ParaValue'][key[0]]
-                if str(object_key).strip() =="" and key[1]:
+                if ( object_key == None or str(object_key).strip() =="" ) and key[1]:
                     object_key = i['ParaValue'][key[1]]
 
                 output[object_key] = {}
@@ -178,10 +178,10 @@ class zte_f670l:
                         int(value)
                     except ValueError:
                         continue
-            
-                    txt  = "{4}\n{0}_{2} {{device={1}}} {3}\n".format(
+                        
+                    txt  = "{4}\n{0}_{2} {{device=\"{1}\"}} {3}\n".format(
                         main_stat,
-                        device.lower(),
+                        str(device).lower(),
                         clean_stat,
                         value,
                         type
