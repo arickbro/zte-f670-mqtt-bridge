@@ -42,13 +42,13 @@ class zte_f670l:
 
         html = self.session.get(self.ZTE_BASE_URL+'?_type=menuData&_tag=optical_info_lua.lua').text
         main_object = xmltodict.parse(html)
-        output['optical_info'] = self.translate(main_object,'OBJ_PON_OPTICALPARA_ID', 0) 
-        output['optical_power_on_time'] = self.translate(main_object,'OBJ_PON_POWERONTIME_ID', 0) 
+        output['optical_info'] = self.translate(main_object,'OBJ_PON_OPTICALPARA_ID', [0]) 
+        output['optical_power_on_time'] = self.translate(main_object,'OBJ_PON_POWERONTIME_ID', [0]) 
         
         self.session.get(self.ZTE_BASE_URL+'?_type=menuView&_tag=ethWanStatus&Menu3Location=0')
         html = self.session.get(self.ZTE_BASE_URL+'?_type=menuData&_tag=wan_internetstatus_lua.lua&TypeUplink=2&pageType=1').text
         main_object = xmltodict.parse(html)
-        output['wan_internetstatus'] = self.translate(main_object,'ID_WAN_COMFIG', 0)
+        output['wan_internetstatus'] = self.translate(main_object,'ID_WAN_COMFIG', [0])
         return output
 
     def zte_local_net_status(self):
@@ -57,17 +57,17 @@ class zte_f670l:
 
         html = self.session.get(self.ZTE_BASE_URL+'?_type=menuData&_tag=status_lan_info_lua.lua').text
         main_object = xmltodict.parse(html)
-        output['status_lan_info'] = self.translate(main_object,'OBJ_PON_PORT_BASIC_STATUS_ID', 0) 
+        output['status_lan_info'] = self.translate(main_object,'OBJ_PON_PORT_BASIC_STATUS_ID', [0]) 
 
         html = self.session.get(self.ZTE_BASE_URL+'?_type=menuData&_tag=wlan_wlanstatus_lua.lua&TypeUplink=2&pageType=1').text
         main_object = xmltodict.parse(html)
-        output['wlan_wlanstatus'] = self.translate(main_object,'OBJ_WLANAP_ID', 0) 
-        output['wlan_client_configdrv_id'] = self.translate(main_object,'OBJ_WLANCONFIGDRV_ID', 0) 
+        output['wlan_wlanstatus'] = self.translate(main_object,'OBJ_WLANAP_ID', [0]) 
+        output['wlan_client_configdrv_id'] = self.translate(main_object,'OBJ_WLANCONFIGDRV_ID', [0]) 
 
         html = self.session.get(self.ZTE_BASE_URL+'?_type=menuData&_tag=wlan_client_stat_lua.lua&TypeUplink=2&pageType=1').text
         main_object = xmltodict.parse(html)
-        output['wlan_client_stat'] = self.translate(main_object,'OBJ_WLAN_AD_ID', 0) 
-        output['wlan_client_stat_id'] = self.translate(main_object,'OBJ_WLANAP_ID', 0) 
+        output['wlan_client_stat'] = self.translate(main_object,'OBJ_WLAN_AD_ID', [5,10]) #hostname,mac_address
+        output['wlan_client_stat_id'] = self.translate(main_object,'OBJ_WLANAP_ID', [0]) 
         
         
         return output
@@ -106,7 +106,10 @@ class zte_f670l:
             else:
                 Instance = [object['Instance']]
             for i in Instance:
-                object_key = i['ParaValue'][key]
+                object_key = i['ParaValue'][key[0]]
+                if str(object_key).strip() =="" and key[1]:
+                    object_key = i['ParaValue'][key[1]]
+
                 output[object_key] = {}
                 for index, object_param in enumerate(i['ParaName']):
                     output[object_key][object_param] = i['ParaValue'][index]
